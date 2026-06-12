@@ -4,32 +4,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Retro Board — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
   <style>
     .dashboard { max-width: 800px; margin: 40px auto; padding: 0 20px; }
     .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-    .dashboard-header h1 { font-size: 24px; }
+    .dashboard-header h1 { font-size: 24px; font-weight: 800; color: #050709; }
     .header-actions { display: flex; gap: 12px; }
     .board-list { list-style: none; }
-    .board-item { background: #fff; border-radius: 8px; padding: 16px 20px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: box-shadow 0.2s; }
-    .board-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
-    .board-info h3 { font-size: 16px; margin-bottom: 4px; }
+    .board-item { background: #fff; border-radius: 10px; padding: 16px 20px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: box-shadow 0.2s, border-color 0.2s; border: 1px solid transparent; }
+    .board-item:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-color: #96d6e0; }
+    .board-info h3 { font-size: 16px; margin-bottom: 4px; font-weight: 700; color: #050709; }
     .board-meta { font-size: 13px; color: #888; }
     .board-meta span { margin-right: 16px; }
-    .board-status { font-size: 12px; padding: 4px 10px; border-radius: 12px; font-weight: 500; }
+    .board-status { font-size: 12px; padding: 4px 10px; border-radius: 12px; font-weight: 600; }
     .status-active { background: #dcfce7; color: #166534; }
     .status-locked { background: #fee2e2; color: #991b1b; }
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; }
     .modal-overlay.active { display: flex; }
-    .modal { background: #fff; border-radius: 8px; padding: 32px; width: 400px; max-width: 90vw; }
-    .modal h2 { margin-bottom: 16px; }
+    .modal { background: #fff; border-radius: 12px; padding: 32px; width: 400px; max-width: 90vw; }
+    .modal h2 { margin-bottom: 16px; font-size: 20px; font-weight: 800; }
     .empty-state { text-align: center; padding: 60px 20px; color: #888; }
-    .btn-secondary { background: #e5e7eb; color: #333; }
+    .btn-secondary { background: #e5e7eb; color: #050709; }
     .btn-secondary:hover { background: #d1d5db; }
     .btn-sm { padding: 8px 16px; font-size: 14px; }
   </style>
 </head>
 <body>
+  <div class="top-banner">
+    <span class="banner-title">Retro Board</span>
+  </div>
   <div class="dashboard">
     <div class="dashboard-header">
       <h1>My Retro Boards</h1>

@@ -4,100 +4,239 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Retro Board</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
   <style>
-    .board-header { background: #fff; padding: 16px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-    .board-title { font-size: 20px; font-weight: 600; }
+    .board-header { background: linear-gradient(135deg, #78287B 0%, #e25f37 100%); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; color: #fff; }
+    .board-title { font-size: 20px; font-weight: 700; color: #fff; }
     .board-actions { display: flex; gap: 8px; align-items: center; }
+    .board-actions button, .board-actions label { color: #fff; }
     .presence { font-size: 13px; color: #666; padding: 8px 24px; background: #fafafa; border-bottom: 1px solid #eee; }
-    .columns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 24px; min-height: calc(100vh - 120px); }
-    .column { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); display: flex; flex-direction: column; }
-    .column-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb; }
-    .col-went-well .column-title { border-color: #22c55e; }
-    .col-to-improve .column-title { border-color: #f59e0b; }
-    .col-stop-doing .column-title { border-color: #ef4444; }
-    .col-action-items .column-title { border-color: #3b82f6; }
+    .columns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 24px; min-height: calc(100vh - 140px); }
+    .column { background: #fff; border-radius: 10px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; flex-direction: column; }
+    .column-title { font-size: 15px; font-weight: 700; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 3px solid #e5e7eb; }
+    .col-went-well .column-title { border-color: #22c55e; color: #166534; }
+    .col-to-improve .column-title { border-color: #f59e0b; color: #92400e; }
+    .col-stop-doing .column-title { border-color: #ef4444; color: #991b1b; }
+    .col-action-items .column-title { border-color: #3b82f6; color: #1e40af; }
     .cards-container { flex: 1; overflow-y: auto; margin-bottom: 12px; }
-    .card-item { background: #f9fafb; border-radius: 6px; padding: 12px; margin-bottom: 8px; border: 1px solid #e5e7eb; }
-    .card-text { font-size: 14px; margin-bottom: 6px; }
-    .card-meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #888; }
+    .card-item { background: #f9fafb; border-radius: 8px; padding: 12px; margin-bottom: 8px; border: 1px solid #e5e7eb; transition: border-color 0.2s, box-shadow 0.2s; }
+    .card-item:hover { border-color: #96d6e0; box-shadow: 0 0 0 2px rgba(150,214,224,0.2); }
+    .card-text { font-size: 14px; margin-bottom: 6px; line-height: 1.4; }
+    .card-meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #888; margin-bottom: 6px; }
     .card-author { font-style: italic; }
-    .card-actions { display: flex; gap: 8px; align-items: center; }
-    .vote-btn { background: none; border: 1px solid #ddd; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 4px; }
-    .vote-btn:hover { background: #f0f0f0; }
-    .vote-btn.voted { background: #dbeafe; border-color: #93c5fd; }
+    .card-own-actions { display: flex; gap: 4px; }
     .edit-btn, .delete-btn { background: none; border: none; cursor: pointer; font-size: 12px; color: #888; padding: 2px 4px; }
-    .edit-btn:hover { color: #4a90d9; }
+    .edit-btn:hover { color: #e25f37; }
     .delete-btn:hover { color: #dc2626; }
-    .card-assignee { font-size: 12px; color: #3b82f6; margin-bottom: 4px; }
-    .add-card { display: flex; gap: 8px; }
-    .add-card input { flex: 1; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
-    .add-card button { padding: 8px 14px; background: #4a90d9; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
-    .add-card button:hover { background: #357abd; }
-    .locked-banner { background: #fef2f2; color: #991b1b; text-align: center; padding: 8px; font-size: 14px; font-weight: 500; }
-    .lock-toggle { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
-    .lock-toggle input { width: 16px; height: 16px; }
-    .btn-export { background: #f3f4f6; color: #333; border: 1px solid #ddd; border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 13px; }
-    .btn-export:hover { background: #e5e7eb; }
+    .card-assignee { font-size: 12px; color: #3b82f6; margin-bottom: 4px; font-weight: 600; }
+    .card-avatar-embed { margin: 6px 0; }
+    .card-avatar-embed img { height: 120px; border-radius: 8px; }
+    .card-gif-embed { margin: 6px 0; }
+    .card-gif-embed img { max-width: 100%; max-height: 200px; border-radius: 6px; }
 
-    @media (max-width: 900px) {
-      .columns { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 600px) {
-      .columns { grid-template-columns: 1fr; }
-    }
+    /* Reactions */
+    .card-reactions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 4px; position: relative; }
+    .reaction-summary { display: flex; gap: 4px; flex-wrap: wrap; }
+    .reaction-badge { display: inline-flex; align-items: center; gap: 2px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 12px; padding: 2px 8px; font-size: 12px; cursor: pointer; transition: all 0.15s; }
+    .reaction-badge:hover { background: #e5e7eb; }
+    .reaction-badge.my-reaction { background: #fef2e8; border-color: #e25f37; }
+    .reaction-avatar-img { width: 18px; height: 18px; border-radius: 50%; }
+    .add-reaction-btn { background: none; border: 1px dashed #ccc; border-radius: 12px; padding: 2px 8px; font-size: 12px; cursor: pointer; color: #888; }
+    .add-reaction-btn:hover { border-color: #e25f37; color: #e25f37; }
+    .reaction-picker { position: absolute; bottom: 100%; left: 0; background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 6px; display: flex; gap: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 50; flex-wrap: wrap; max-width: 240px; }
+    .reaction-option { background: none; border: 1px solid transparent; border-radius: 6px; padding: 4px; cursor: pointer; font-size: 18px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
+    .reaction-option:hover { background: #f3f4f6; }
+    .reaction-option.selected { border-color: #e25f37; background: #fef2e8; }
+    .reaction-option img { width: 24px; height: 24px; border-radius: 50%; }
+
+    /* Add card area */
+    .add-card { display: flex; gap: 6px; flex-wrap: wrap; }
+    .add-card input { flex: 1; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; font-family: 'Nunito', sans-serif; min-width: 80px; }
+    .add-card input:focus { border-color: #96d6e0; box-shadow: 0 0 0 3px rgba(150,214,224,0.15); outline: none; }
+    .add-card-buttons { display: flex; gap: 4px; }
+    .add-card-buttons button { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-family: 'Nunito', sans-serif; font-weight: 600; }
+    .btn-add-card { background: #e25f37; color: #fff; }
+    .btn-add-card:hover { background: #c94e2d; }
+    .btn-gif { background: #f3f4f6; color: #050709; border: 1px solid #ddd !important; }
+    .btn-gif:hover { background: #e5e7eb; }
+    .btn-avatar { background: #f3f4f6; color: #050709; border: 1px solid #ddd !important; }
+    .btn-avatar:hover { background: #e5e7eb; }
+    .attachment-preview { display: flex; align-items: center; gap: 6px; margin-top: 4px; min-height: 0; }
+    .attachment-preview img { border-radius: 4px; }
+    .remove-attachment { background: #ef4444; color: #fff; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+
+    /* Timer */
+    .timer-area { display: flex; align-items: center; gap: 8px; position: relative; }
+    .timer-display { font-weight: 700; font-size: 16px; display: none; }
+    .timer-display.active { color: #fff; }
+    .timer-display.times-up { color: #fbbf24; animation: pulse 0.5s ease-in-out infinite alternate; }
+    @keyframes pulse { from { opacity: 1; } to { opacity: 0.6; } }
+    .btn-timer { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; padding: 5px 12px; cursor: pointer; font-size: 13px; font-family: 'Nunito', sans-serif; font-weight: 600; display: none; }
+    .btn-timer:hover { background: rgba(255,255,255,0.3); }
+    .timer-cancel { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; padding: 5px 10px; cursor: pointer; font-size: 12px; display: none; }
+    .timer-cancel:hover { background: rgba(239,68,68,0.5); }
+    .timer-dropdown { display: none; position: absolute; top: 100%; right: 0; background: #fff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 8px; z-index: 50; }
+    .timer-dropdown button { display: block; width: 100%; padding: 8px 16px; border: none; background: none; cursor: pointer; font-size: 14px; font-family: 'Nunito', sans-serif; color: #050709; text-align: left; border-radius: 4px; }
+    .timer-dropdown button:hover { background: #f3f4f6; }
+
+    /* Lock toggle in banner */
+    .lock-toggle { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; color: #fff; }
+    .lock-toggle input { width: 16px; height: 16px; }
+    .btn-export { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; padding: 5px 14px; cursor: pointer; font-size: 13px; font-family: 'Nunito', sans-serif; font-weight: 600; }
+    .btn-export:hover { background: rgba(255,255,255,0.3); }
+
+    .locked-banner { background: #fef2f2; color: #991b1b; text-align: center; padding: 8px; font-size: 14px; font-weight: 600; }
+
+    /* GIF Modal */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: #fff; border-radius: 12px; padding: 24px; width: 560px; max-width: 95vw; max-height: 80vh; display: flex; flex-direction: column; }
+    .modal h2 { margin-bottom: 12px; font-size: 18px; font-weight: 800; }
+    .modal-close { position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 20px; cursor: pointer; color: #888; }
+    .gif-search-bar { padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; width: 100%; margin-bottom: 12px; font-family: 'Nunito', sans-serif; }
+    .gif-search-bar:focus { border-color: #96d6e0; outline: none; }
+    #gif-results { display: flex; flex-wrap: wrap; gap: 8px; overflow-y: auto; max-height: 400px; }
+    .gif-result-item { width: calc(33.33% - 6px); height: auto; border-radius: 6px; cursor: pointer; transition: transform 0.1s; }
+    .gif-result-item:hover { transform: scale(1.05); }
+
+    /* Avatar picker modal */
+    .avatar-grid { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; padding: 12px 0; }
+    .avatar-pick-btn { background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 12px; padding: 8px; cursor: pointer; transition: all 0.15s; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .avatar-pick-btn:hover { border-color: #e25f37; background: #fef2e8; }
+    .avatar-pick-btn img { width: 80px; height: 80px; border-radius: 8px; }
+    .avatar-pick-btn span { font-size: 12px; font-weight: 600; color: #050709; }
+
+    @media (max-width: 900px) { .columns { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .columns { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
   <div class="board-header">
     <span class="board-title" id="board-title">Loading...</span>
+    <div class="timer-area">
+      <span class="timer-display" id="timer-display"></span>
+      <button class="btn-timer" id="timer-btn" onclick="showTimerDropdown()">&#9201; Timer</button>
+      <button class="timer-cancel" id="timer-cancel" onclick="cancelTimer()">&#x2715;</button>
+      <div class="timer-dropdown" id="timer-dropdown">
+        <button onclick="startTimer(5)">5 minutes</button>
+        <button onclick="startTimer(10)">10 minutes</button>
+        <button onclick="startTimer(15)">15 minutes</button>
+      </div>
+    </div>
     <div class="board-actions">
       <label class="lock-toggle" id="lock-toggle" style="display:none">
         <input type="checkbox" id="lock-checkbox">
         <span id="lock-label">Lock Board</span>
       </label>
-      <button class="btn-export" id="export-btn">Export Markdown</button>
+      <button class="btn-export" id="export-btn">Export</button>
     </div>
   </div>
   <div class="presence" id="presence">Connecting...</div>
   <div class="locked-banner" id="locked-banner" style="display:none">This board is locked — read only</div>
   <div class="columns" id="columns">
     <div class="column col-went-well">
-      <div class="column-title">Went Well</div>
+      <div class="column-title">&#x2705; Went Well</div>
       <div class="cards-container" id="cards-went_well"></div>
+      <div class="attachment-preview" id="preview-went_well"></div>
       <div class="add-card" id="add-went_well">
         <input type="text" placeholder="Add a card..." id="input-went_well">
-        <button onclick="addCard('went_well')">+</button>
+        <div class="add-card-buttons">
+          <button class="btn-gif" onclick="openGifSearch('went_well')">GIF</button>
+          <button class="btn-avatar" onclick="openAvatarPicker('went_well')">&#x1F60A;</button>
+          <button class="btn-add-card" onclick="addCard('went_well')">+</button>
+        </div>
       </div>
     </div>
     <div class="column col-to-improve">
-      <div class="column-title">To Improve</div>
+      <div class="column-title">&#x1F527; To Improve</div>
       <div class="cards-container" id="cards-to_improve"></div>
+      <div class="attachment-preview" id="preview-to_improve"></div>
       <div class="add-card" id="add-to_improve">
         <input type="text" placeholder="Add a card..." id="input-to_improve">
-        <button onclick="addCard('to_improve')">+</button>
+        <div class="add-card-buttons">
+          <button class="btn-gif" onclick="openGifSearch('to_improve')">GIF</button>
+          <button class="btn-avatar" onclick="openAvatarPicker('to_improve')">&#x1F60A;</button>
+          <button class="btn-add-card" onclick="addCard('to_improve')">+</button>
+        </div>
       </div>
     </div>
     <div class="column col-stop-doing">
-      <div class="column-title">Stop Doing</div>
+      <div class="column-title">&#x1F6D1; Stop Doing</div>
       <div class="cards-container" id="cards-stop_doing"></div>
+      <div class="attachment-preview" id="preview-stop_doing"></div>
       <div class="add-card" id="add-stop_doing">
         <input type="text" placeholder="Add a card..." id="input-stop_doing">
-        <button onclick="addCard('stop_doing')">+</button>
+        <div class="add-card-buttons">
+          <button class="btn-gif" onclick="openGifSearch('stop_doing')">GIF</button>
+          <button class="btn-avatar" onclick="openAvatarPicker('stop_doing')">&#x1F60A;</button>
+          <button class="btn-add-card" onclick="addCard('stop_doing')">+</button>
+        </div>
       </div>
     </div>
     <div class="column col-action-items">
-      <div class="column-title">Action Items</div>
+      <div class="column-title">&#x1F4CB; Action Items</div>
       <div class="cards-container" id="cards-action_items"></div>
+      <div class="attachment-preview" id="preview-action_items"></div>
       <div class="add-card" id="add-action_items">
         <input type="text" placeholder="Add a card..." id="input-action_items">
-        <input type="text" placeholder="Assignee (optional)" id="assignee-action_items" style="max-width:140px">
-        <button onclick="addCard('action_items')">+</button>
+        <input type="text" placeholder="Assignee" id="assignee-action_items" style="max-width:120px">
+        <div class="add-card-buttons">
+          <button class="btn-gif" onclick="openGifSearch('action_items')">GIF</button>
+          <button class="btn-avatar" onclick="openAvatarPicker('action_items')">&#x1F60A;</button>
+          <button class="btn-add-card" onclick="addCard('action_items')">+</button>
+        </div>
       </div>
     </div>
   </div>
+
+  <!-- GIF Search Modal -->
+  <div class="modal-overlay" id="gif-modal">
+    <div class="modal" style="position:relative">
+      <button class="modal-close" onclick="document.getElementById('gif-modal').classList.remove('active')">&#x2715;</button>
+      <h2>Search GIFs</h2>
+      <input type="text" class="gif-search-bar" id="gif-search-input" placeholder="Search Tenor for GIFs...">
+      <div id="gif-results"></div>
+    </div>
+  </div>
+
+  <!-- Avatar Picker Modal -->
+  <div class="modal-overlay" id="avatar-modal">
+    <div class="modal" style="position:relative">
+      <button class="modal-close" onclick="document.getElementById('avatar-modal').classList.remove('active')">&#x2715;</button>
+      <h2>Pick an Avatar</h2>
+      <div class="avatar-grid" id="avatar-grid"></div>
+    </div>
+  </div>
+
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/board.js"></script>
   <script src="/js/export.js"></script>
+  <script>
+    // Populate avatar picker grid
+    const AVATAR_KEYS = ['chris_happy','chris_grumpy','phani_happy','phani_grumpy','scott_happy','scott_grumpy'];
+    const AVATAR_META = {
+      chris_happy:  { label: 'Chris 😊', file: 'chris-happy.png' },
+      chris_grumpy: { label: 'Chris 😠', file: 'chris-grumpy.png' },
+      phani_happy:  { label: 'Phani 😊', file: 'phani-happy.png' },
+      phani_grumpy: { label: 'Phani 😠', file: 'phani-grumpy.png' },
+      scott_happy:  { label: 'Scott 😊', file: 'scott-happy.png' },
+      scott_grumpy: { label: 'Scott 😠', file: 'scott-grumpy.png' },
+    };
+    const grid = document.getElementById('avatar-grid');
+    AVATAR_KEYS.forEach(key => {
+      const btn = document.createElement('button');
+      btn.className = 'avatar-pick-btn';
+      btn.onclick = () => selectAvatarEmbed(key);
+      const img = document.createElement('img');
+      img.src = `/images/avatars/${AVATAR_META[key].file}`;
+      img.alt = AVATAR_META[key].label;
+      btn.appendChild(img);
+      const label = document.createElement('span');
+      label.textContent = AVATAR_META[key].label;
+      btn.appendChild(label);
+      grid.appendChild(btn);
+    });
+  </script>
 </body>
 </html>

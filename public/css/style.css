@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -5,28 +7,46 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #f5f5f5;
-  color: #333;
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f0f2f5;
+  color: #050709;
   min-height: 100vh;
+}
+
+/* Phreesia Banner */
+.top-banner {
+  background: linear-gradient(135deg, #78287B 0%, #e25f37 100%);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.top-banner .banner-title {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
 }
 
 .container {
   max-width: 500px;
-  margin: 80px auto;
+  margin: 60px auto;
   padding: 0 20px;
 }
 
 .card-form {
   background: #fff;
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 32px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 .card-form h1 {
   margin-bottom: 8px;
   font-size: 24px;
+  font-weight: 800;
+  color: #050709;
 }
 
 .card-form p {
@@ -41,7 +61,7 @@ body {
 .form-group label {
   display: block;
   margin-bottom: 6px;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 14px;
 }
 
@@ -50,14 +70,15 @@ body {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid #ddd;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 16px;
+  font-family: 'Nunito', sans-serif;
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #4a90d9;
-  box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.1);
+  border-color: #96d6e0;
+  box-shadow: 0 0 0 3px rgba(150, 214, 224, 0.2);
 }
 
 .checkbox-group {
@@ -69,34 +90,50 @@ body {
 .checkbox-group input[type="checkbox"] {
   width: 18px;
   height: 18px;
+  accent-color: #e25f37;
 }
 
 .btn {
   display: inline-block;
   padding: 10px 20px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 700;
   cursor: pointer;
   text-decoration: none;
+  font-family: 'Nunito', sans-serif;
 }
 
 .btn-primary {
-  background: #4a90d9;
+  background: #e25f37;
   color: #fff;
   width: 100%;
 }
 
 .btn-primary:hover {
-  background: #357abd;
+  background: #c94e2d;
+}
+
+.btn-secondary {
+  background: #e5e7eb;
+  color: #050709;
+}
+
+.btn-secondary:hover {
+  background: #d1d5db;
+}
+
+.btn-sm {
+  padding: 8px 16px;
+  font-size: 14px;
 }
 
 .error-msg {
   background: #fef2f2;
   color: #dc2626;
   padding: 10px 14px;
-  border-radius: 6px;
+  border-radius: 8px;
   margin-bottom: 16px;
   font-size: 14px;
   display: none;
@@ -108,6 +145,19 @@ body {
 }
 
 .admin-link a {
-  color: #666;
+  color: #e25f37;
   font-size: 14px;
+  font-weight: 600;
+}
+
+.admin-link a:hover {
+  color: #c94e2d;
+}
+
+a {
+  color: #e25f37;
+}
+
+a:hover {
+  color: #c94e2d;
 }
