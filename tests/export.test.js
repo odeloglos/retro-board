@@ -6,7 +6,7 @@ const { createAuthRouter } = require('../src/routes/auth');
 const { createBoardsRouter } = require('../src/routes/boards');
 const { createJoinRouter } = require('../src/routes/join');
 const { createCardsRouter } = require('../src/routes/cards');
-const { createVotesRouter } = require('../src/routes/votes');
+const { createReactionsRouter } = require('../src/routes/reactions');
 const { createExportRouter } = require('../src/routes/export');
 
 function createApp(db) {
@@ -17,7 +17,7 @@ function createApp(db) {
   app.use('/api/boards', createBoardsRouter(db));
   app.use('/api/join', createJoinRouter(db));
   app.use('/api', createCardsRouter(db));
-  app.use('/api', createVotesRouter(db));
+  app.use('/api', createReactionsRouter(db));
   app.use('/api', createExportRouter(db));
   return app;
 }
@@ -48,23 +48,23 @@ describe('export route', () => {
     expect(res.text).toContain('## Action Items');
   });
 
-  it('exports cards sorted by vote count descending', async () => {
+  it('exports cards sorted by total reaction count descending', async () => {
     const alice = supertest.agent(app);
     await alice.post('/api/join').send({ pin: boardPin, display_name: 'Alice' });
-    const card1 = await alice.post(`/api/boards/${boardId}/cards`).send({ column: 'went_well', text: 'Less votes' });
-    const card2 = await alice.post(`/api/boards/${boardId}/cards`).send({ column: 'went_well', text: 'More votes' });
+    const card1 = await alice.post(`/api/boards/${boardId}/cards`).send({ column: 'went_well', text: 'Less reactions' });
+    const card2 = await alice.post(`/api/boards/${boardId}/cards`).send({ column: 'went_well', text: 'More reactions' });
 
     const bob = supertest.agent(app);
     await bob.post('/api/join').send({ pin: boardPin, display_name: 'Bob' });
-    await bob.post(`/api/cards/${card2.body.id}/vote`);
+    await bob.post(`/api/cards/${card2.body.id}/react`).send({ type: 'thumbs_up' });
 
     const admin = supertest.agent(app);
     await admin.post('/api/auth/login').send({ username: 'admin', password: 'secret123' });
     const res = await admin.get(`/api/boards/${boardId}/export`);
 
     const wentWellSection = res.text.split('## To Improve')[0];
-    const moreIdx = wentWellSection.indexOf('More votes');
-    const lessIdx = wentWellSection.indexOf('Less votes');
+    const moreIdx = wentWellSection.indexOf('More reactions');
+    const lessIdx = wentWellSection.indexOf('Less reactions');
     expect(moreIdx).toBeLessThan(lessIdx);
   });
 
@@ -83,17 +83,36 @@ describe('export route', () => {
     expect(res.text).toContain('**Assigned to: Bob**');
   });
 
-  it('omits vote indicator for zero-vote cards', async () => {
+  it('omits reaction indicator for zero-reaction cards', async () => {
     const alice = supertest.agent(app);
     await alice.post('/api/join').send({ pin: boardPin, display_name: 'Alice' });
-    await alice.post(`/api/boards/${boardId}/cards`).send({ column: 'went_well', text: 'No votes here' });
+    await alice.post(`/api/boards/${boardId}/cards`).send({ column: 'went_well', text: 'No reactions here' });
 
     const admin = supertest.agent(app);
     await admin.post('/api/auth/login').send({ username: 'admin', password: 'secret123' });
     const res = await admin.get(`/api/boards/${boardId}/export`);
 
-    const line = res.text.split('\n').find(l => l.includes('No votes here'));
+    const line = res.text.split('\n').find(l => l.includes('No reactions here'));
     expect(line).not.toContain('👍');
+    expect(line).not.toContain('👎');
+    expect(line).not.toContain('❤️');
+  });
+
+  it('includes standard emoji reactions in export', async () => {
+    const alice = supertest.agent(app);
+    await alice.post('/api/join').send({ pin: boardPin, display_name: 'Alice' });
+    const card = await alice.post(`/api/boards/${boardId}/cards`).send({ column: 'went_well', text: 'Good stuff' });
+
+    const bob = supertest.agent(app);
+    await bob.post('/api/join').send({ pin: boardPin, display_name: 'Bob' });
+    await bob.post(`/api/cards/${card.body.id}/react`).send({ type: 'heart' });
+
+    const admin = supertest.agent(app);
+    await admin.post('/api/auth/login').send({ username: 'admin', password: 'secret123' });
+    const res = await admin.get(`/api/boards/${boardId}/export`);
+
+    const line = res.text.split('\n').find(l => l.includes('Good stuff'));
+    expect(line).toContain('❤️ 1');
   });
 
   it('includes participant list with anonymous count', async () => {

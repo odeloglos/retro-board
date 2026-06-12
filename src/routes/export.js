@@ -8,19 +8,37 @@ const COLUMN_ORDER = [
   { key: 'action_items', label: 'Action Items' }
 ];
 
+const AVATAR_LABELS = {
+  chris_happy: 'Chris 😊', chris_grumpy: 'Chris 😠',
+  phani_happy: 'Phani 😊', phani_grumpy: 'Phani 😠',
+  scott_happy: 'Scott 😊', scott_grumpy: 'Scott 😠',
+};
+
+const REACTION_EMOJI = {
+  thumbs_up: '👍', thumbs_down: '👎', heart: '❤️',
+};
+
 function createExportRouter(db) {
   const router = express.Router();
 
   router.get('/boards/:id/export', requireBoardAccess(db), (req, res) => {
     const board = req.board;
 
-    const cards = db.prepare(`
-      SELECT c.*, COUNT(v.id) as votes
-      FROM cards c
-      LEFT JOIN votes v ON v.card_id = c.id
-      WHERE c.board_id = ?
-      GROUP BY c.id
-    `).all(board.id);
+    const cards = db.prepare('SELECT * FROM cards WHERE board_id = ?').all(board.id);
+
+    // Attach reaction summaries and total counts to each card
+    const cardsWithReactions = cards.map(card => {
+      const reactionRows = db.prepare(
+        'SELECT type, COUNT(*) as count FROM reactions WHERE card_id = ? GROUP BY type'
+      ).all(card.id);
+      const reactions = {};
+      let totalReactions = 0;
+      reactionRows.forEach(r => {
+        reactions[r.type] = r.count;
+        totalReactions += r.count;
+      });
+      return { ...card, reactions, totalReactions };
+    });
 
     const participants = db.prepare('SELECT display_name FROM participants WHERE board_id = ?').all(board.id);
     const named = participants.filter(p => p.display_name !== 'Anonymous').map(p => p.display_name);
@@ -44,9 +62,9 @@ function createExportRouter(db) {
     for (const col of COLUMN_ORDER) {
       md += `\n## ${col.label}\n`;
 
-      const colCards = cards
+      const colCards = cardsWithReactions
         .filter(c => c.column === col.key)
-        .sort((a, b) => b.votes - a.votes);
+        .sort((a, b) => b.totalReactions - a.totalReactions);
 
       if (colCards.length === 0) {
         md += '\n_No items_\n';
@@ -54,15 +72,41 @@ function createExportRouter(db) {
       }
 
       for (const card of colCards) {
-        let line = `- ${card.text}`;
+        let line = `- ${card.text || ''}`;
         if (col.key === 'action_items' && card.assignee) {
           line += ` → **Assigned to: ${card.assignee}**`;
         }
         line += ` (${card.author})`;
-        if (card.votes > 0) {
-          line += ` 👍 ${card.votes}`;
+
+        // Build reaction string
+        const reactionParts = [];
+        // Standard emoji reactions first
+        for (const [type, emoji] of Object.entries(REACTION_EMOJI)) {
+          if (card.reactions[type]) {
+            reactionParts.push(`${emoji} ${card.reactions[type]}`);
+          }
         }
+        // Avatar reactions
+        for (const [type, label] of Object.entries(AVATAR_LABELS)) {
+          if (card.reactions[type]) {
+            reactionParts.push(`[${label}] ${card.reactions[type]}`);
+          }
+        }
+        if (reactionParts.length > 0) {
+          line += ' ' + reactionParts.join(' ');
+        }
+
         md += line + '\n';
+
+        // GIF line
+        if (card.gif_url) {
+          md += `  ![GIF](${card.gif_url})\n`;
+        }
+        // Avatar line
+        if (card.avatar) {
+          const avatarLabel = AVATAR_LABELS[card.avatar] || card.avatar;
+          md += `  [Avatar Name]\n`;
+        }
       }
     }
 
