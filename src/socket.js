@@ -8,6 +8,7 @@ function initSocket(server, sessionMiddleware, db) {
   });
 
   const boardPresence = {};
+  const boardTimers = {};
 
   function getPresenceList(boardId) {
     const users = boardPresence[boardId] || {};
@@ -38,6 +39,11 @@ function initSocket(server, sessionMiddleware, db) {
       boardPresence[boardId][socket.id] = { display_name, sessionId };
 
       io.to(boardId).emit('presence:updated', getPresenceList(boardId));
+
+      // If there's an active timer for this board, send it to the joining socket
+      if (boardTimers[boardId] && boardTimers[boardId].endTime > Date.now()) {
+        socket.emit('timer:started', { endTime: boardTimers[boardId].endTime });
+      }
     });
 
     socket.on('card:add', (data) => {
@@ -52,12 +58,24 @@ function initSocket(server, sessionMiddleware, db) {
       io.to(socket.boardId).emit('card:deleted', data);
     });
 
-    socket.on('card:vote', (data) => {
-      io.to(socket.boardId).emit('card:voted', data);
+    socket.on('card:react', (data) => {
+      io.to(socket.boardId).emit('card:reacted', data);
     });
 
     socket.on('board:lock', (data) => {
       io.to(socket.boardId).emit('board:locked', data);
+    });
+
+    socket.on('timer:start', ({ boardId, endTime }) => {
+      const id = boardId || socket.boardId;
+      boardTimers[id] = { endTime };
+      io.to(id).emit('timer:started', { endTime });
+    });
+
+    socket.on('timer:cancel', ({ boardId } = {}) => {
+      const id = boardId || socket.boardId;
+      delete boardTimers[id];
+      io.to(id).emit('timer:cancelled');
     });
 
     let disconnectTimer;
