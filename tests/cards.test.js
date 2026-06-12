@@ -45,6 +45,41 @@ describe('card routes', () => {
       expect(res.body.text).toBe('Great sprint!');
       expect(res.body.author).toBe('Bob');
       expect(res.body.column).toBe('went_well');
+      expect(res.body.reactions).toEqual({});
+    });
+
+    it('adds a card with gif_url and no text', async () => {
+      const agent = supertest.agent(app);
+      await agent.post('/api/join').send({ pin: boardPin, display_name: 'Bob' });
+      const res = await agent.post(`/api/boards/${boardId}/cards`).send({
+        column: 'went_well',
+        gif_url: 'https://example.com/celebrate.gif'
+      });
+      expect(res.status).toBe(201);
+      expect(res.body.gif_url).toBe('https://example.com/celebrate.gif');
+      expect(res.body.text).toBeNull();
+      expect(res.body.reactions).toEqual({});
+    });
+
+    it('adds a card with avatar and no text', async () => {
+      const agent = supertest.agent(app);
+      await agent.post('/api/join').send({ pin: boardPin, display_name: 'Bob' });
+      const res = await agent.post(`/api/boards/${boardId}/cards`).send({
+        column: 'went_well',
+        avatar: 'chris_happy'
+      });
+      expect(res.status).toBe(201);
+      expect(res.body.avatar).toBe('chris_happy');
+      expect(res.body.reactions).toEqual({});
+    });
+
+    it('rejects cards with no content at all', async () => {
+      const agent = supertest.agent(app);
+      await agent.post('/api/join').send({ pin: boardPin, display_name: 'Dave' });
+      const res = await agent.post(`/api/boards/${boardId}/cards`).send({
+        column: 'went_well'
+      });
+      expect(res.status).toBe(400);
     });
 
     it('rejects cards on locked boards', async () => {
@@ -83,6 +118,31 @@ describe('card routes', () => {
       const res = await agent.patch(`/api/cards/${card.body.id}`).send({ text: 'Updated' });
       expect(res.status).toBe(200);
       expect(res.body.text).toBe('Updated');
+      expect(res.body.reactions).toBeDefined();
+    });
+
+    it('updates gif_url on own card', async () => {
+      const agent = supertest.agent(app);
+      await agent.post('/api/join').send({ pin: boardPin, display_name: 'Eve' });
+      const card = await agent.post(`/api/boards/${boardId}/cards`).send({
+        column: 'to_improve',
+        text: 'Original'
+      });
+      const res = await agent.patch(`/api/cards/${card.body.id}`).send({ gif_url: 'https://example.com/gif.gif' });
+      expect(res.status).toBe(200);
+      expect(res.body.gif_url).toBe('https://example.com/gif.gif');
+    });
+
+    it('updates avatar on own card', async () => {
+      const agent = supertest.agent(app);
+      await agent.post('/api/join').send({ pin: boardPin, display_name: 'Eve' });
+      const card = await agent.post(`/api/boards/${boardId}/cards`).send({
+        column: 'to_improve',
+        text: 'Original'
+      });
+      const res = await agent.patch(`/api/cards/${card.body.id}`).send({ avatar: 'phani_happy' });
+      expect(res.status).toBe(200);
+      expect(res.body.avatar).toBe('phani_happy');
     });
   });
 

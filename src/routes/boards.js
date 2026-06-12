@@ -32,23 +32,17 @@ function createBoardsRouter(db) {
   router.get('/:id', requireBoardAccess(db), (req, res) => {
     const board = req.board;
     const cards = db.prepare('SELECT * FROM cards WHERE board_id = ? ORDER BY created_at ASC').all(board.id);
-    const cardIds = cards.map(c => c.id);
 
-    let voteCounts = {};
-    if (cardIds.length > 0) {
-      const placeholders = cardIds.map(() => '?').join(',');
-      const votes = db.prepare(
-        `SELECT card_id, COUNT(*) as count FROM votes WHERE card_id IN (${placeholders}) GROUP BY card_id`
-      ).all(...cardIds);
-      votes.forEach(v => { voteCounts[v.card_id] = v.count; });
-    }
+    const cardsWithReactions = cards.map(card => {
+      const reactionRows = db.prepare(
+        'SELECT type, COUNT(*) as count FROM reactions WHERE card_id = ? GROUP BY type'
+      ).all(card.id);
+      const reactions = {};
+      reactionRows.forEach(r => { reactions[r.type] = r.count; });
+      return { ...card, reactions };
+    });
 
-    const cardsWithVotes = cards.map(card => ({
-      ...card,
-      votes: voteCounts[card.id] || 0
-    }));
-
-    res.json({ ...board, cards: cardsWithVotes });
+    res.json({ ...board, cards: cardsWithReactions });
   });
 
   router.patch('/:id/lock', requireAdmin, (req, res) => {

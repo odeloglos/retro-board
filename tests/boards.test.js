@@ -64,7 +64,7 @@ describe('board routes', () => {
   });
 
   describe('GET /api/boards/:id', () => {
-    it('returns board with cards and votes', async () => {
+    it('returns board with cards and reactions', async () => {
       const agent = await loginAsAdmin(app);
       const create = await agent.post('/api/boards').send({ title: 'Test Board' });
       const res = await agent.get(`/api/boards/${create.body.id}`);
