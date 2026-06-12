@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retro Board</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .board-header { background: #fff; padding: 16px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .board-title { font-size: 20px; font-weight: 600; }
+    .board-actions { display: flex; gap: 8px; align-items: center; }
+    .presence { font-size: 13px; color: #666; padding: 8px 24px; background: #fafafa; border-bottom: 1px solid #eee; }
+    .columns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 24px; min-height: calc(100vh - 120px); }
+    .column { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); display: flex; flex-direction: column; }
+    .column-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb; }
+    .col-went-well .column-title { border-color: #22c55e; }
+    .col-to-improve .column-title { border-color: #f59e0b; }
+    .col-stop-doing .column-title { border-color: #ef4444; }
+    .col-action-items .column-title { border-color: #3b82f6; }
+    .cards-container { flex: 1; overflow-y: auto; margin-bottom: 12px; }
+    .card-item { background: #f9fafb; border-radius: 6px; padding: 12px; margin-bottom: 8px; border: 1px solid #e5e7eb; }
+    .card-text { font-size: 14px; margin-bottom: 6px; }
+    .card-meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #888; }
+    .card-author { font-style: italic; }
+    .card-actions { display: flex; gap: 8px; align-items: center; }
+    .vote-btn { background: none; border: 1px solid #ddd; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 4px; }
+    .vote-btn:hover { background: #f0f0f0; }
+    .vote-btn.voted { background: #dbeafe; border-color: #93c5fd; }
+    .edit-btn, .delete-btn { background: none; border: none; cursor: pointer; font-size: 12px; color: #888; padding: 2px 4px; }
+    .edit-btn:hover { color: #4a90d9; }
+    .delete-btn:hover { color: #dc2626; }
+    .card-assignee { font-size: 12px; color: #3b82f6; margin-bottom: 4px; }
+    .add-card { display: flex; gap: 8px; }
+    .add-card input { flex: 1; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+    .add-card button { padding: 8px 14px; background: #4a90d9; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+    .add-card button:hover { background: #357abd; }
+    .locked-banner { background: #fef2f2; color: #991b1b; text-align: center; padding: 8px; font-size: 14px; font-weight: 500; }
+    .lock-toggle { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+    .lock-toggle input { width: 16px; height: 16px; }
+    .btn-export { background: #f3f4f6; color: #333; border: 1px solid #ddd; border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 13px; }
+    .btn-export:hover { background: #e5e7eb; }
+
+    @media (max-width: 900px) {
+      .columns { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .columns { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="board-header">
+    <span class="board-title" id="board-title">Loading...</span>
+    <div class="board-actions">
+      <label class="lock-toggle" id="lock-toggle" style="display:none">
+        <input type="checkbox" id="lock-checkbox">
+        <span id="lock-label">Lock Board</span>
+      </label>
+      <button class="btn-export" id="export-btn">Export Markdown</button>
+    </div>
+  </div>
+  <div class="presence" id="presence">Connecting...</div>
+  <div class="locked-banner" id="locked-banner" style="display:none">This board is locked — read only</div>
+  <div class="columns" id="columns">
+    <div class="column col-went-well">
+      <div class="column-title">Went Well</div>
+      <div class="cards-container" id="cards-went_well"></div>
+      <div class="add-card" id="add-went_well">
+        <input type="text" placeholder="Add a card..." id="input-went_well">
+        <button onclick="addCard('went_well')">+</button>
+      </div>
+    </div>
+    <div class="column col-to-improve">
+      <div class="column-title">To Improve</div>
+      <div class="cards-container" id="cards-to_improve"></div>
+      <div class="add-card" id="add-to_improve">
+        <input type="text" placeholder="Add a card..." id="input-to_improve">
+        <button onclick="addCard('to_improve')">+</button>
+      </div>
+    </div>
+    <div class="column col-stop-doing">
+      <div class="column-title">Stop Doing</div>
+      <div class="cards-container" id="cards-stop_doing"></div>
+      <div class="add-card" id="add-stop_doing">
+        <input type="text" placeholder="Add a card..." id="input-stop_doing">
+        <button onclick="addCard('stop_doing')">+</button>
+      </div>
+    </div>
+    <div class="column col-action-items">
+      <div class="column-title">Action Items</div>
+      <div class="cards-container" id="cards-action_items"></div>
+      <div class="add-card" id="add-action_items">
+        <input type="text" placeholder="Add a card..." id="input-action_items">
+        <input type="text" placeholder="Assignee (optional)" id="assignee-action_items" style="max-width:140px">
+        <button onclick="addCard('action_items')">+</button>
+      </div>
+    </div>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/board.js"></script>
+  <script src="/js/export.js"></script>
+</body>
+</html>
