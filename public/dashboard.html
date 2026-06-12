@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retro Board — Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .dashboard { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+    .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .dashboard-header h1 { font-size: 24px; }
+    .header-actions { display: flex; gap: 12px; }
+    .board-list { list-style: none; }
+    .board-item { background: #fff; border-radius: 8px; padding: 16px 20px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: box-shadow 0.2s; }
+    .board-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+    .board-info h3 { font-size: 16px; margin-bottom: 4px; }
+    .board-meta { font-size: 13px; color: #888; }
+    .board-meta span { margin-right: 16px; }
+    .board-status { font-size: 12px; padding: 4px 10px; border-radius: 12px; font-weight: 500; }
+    .status-active { background: #dcfce7; color: #166534; }
+    .status-locked { background: #fee2e2; color: #991b1b; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: #fff; border-radius: 8px; padding: 32px; width: 400px; max-width: 90vw; }
+    .modal h2 { margin-bottom: 16px; }
+    .empty-state { text-align: center; padding: 60px 20px; color: #888; }
+    .btn-secondary { background: #e5e7eb; color: #333; }
+    .btn-secondary:hover { background: #d1d5db; }
+    .btn-sm { padding: 8px 16px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <div class="dashboard-header">
+      <h1>My Retro Boards</h1>
+      <div class="header-actions">
+        <button class="btn btn-primary btn-sm" id="new-board-btn">+ New Board</button>
+        <button class="btn btn-secondary btn-sm" id="logout-btn">Log Out</button>
+      </div>
+    </div>
+    <ul class="board-list" id="board-list">
+      <li class="empty-state" id="empty-state">No boards yet. Create your first retro board!</li>
+    </ul>
+  </div>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <h2>New Retro Board</h2>
+      <div class="error-msg" id="modal-error"></div>
+      <form id="new-board-form">
+        <div class="form-group">
+          <label for="board-title">Board Title</label>
+          <input type="text" id="board-title" placeholder="e.g. Sprint 42 Retro" required>
+        </div>
+        <div style="display: flex; gap: 12px;">
+          <button type="submit" class="btn btn-primary" style="flex:1">Create Board</button>
+          <button type="button" class="btn btn-secondary" id="cancel-btn" style="flex:1">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>
