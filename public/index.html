@@ -3,10 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Retro Board</title>
+  <title>Retro Board — Join</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <h1>Retro Board</h1>
-  <p>Coming soon.</p>
+  <div class="container">
+    <div class="card-form">
+      <h1>Join a Retro Board</h1>
+      <p>Enter the board PIN to participate</p>
+      <div class="error-msg" id="error"></div>
+      <form id="join-form">
+        <div class="form-group">
+          <label for="pin">Board PIN</label>
+          <input type="text" id="pin" maxlength="6" pattern="\d{6}" placeholder="6-digit PIN" required>
+        </div>
+        <div class="form-group">
+          <label for="display-name">Your Name</label>
+          <input type="text" id="display-name" placeholder="Enter your name">
+        </div>
+        <div class="form-group">
+          <div class="checkbox-group">
+            <input type="checkbox" id="anonymous">
+            <label for="anonymous">Join anonymously</label>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Join Board</button>
+      </form>
+      <div class="admin-link">
+        <a href="/login">Admin Login</a>
+      </div>
+    </div>
+  </div>
+  <script src="/js/join.js"></script>
 </body>
 </html>
