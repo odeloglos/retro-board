@@ -7,7 +7,7 @@ const { createAuthRouter } = require('./src/routes/auth');
 const { createBoardsRouter } = require('./src/routes/boards');
 const { createJoinRouter } = require('./src/routes/join');
 const { createCardsRouter } = require('./src/routes/cards');
-const { createVotesRouter } = require('./src/routes/votes');
+const { createReactionsRouter } = require('./src/routes/reactions');
 const { createExportRouter } = require('./src/routes/export');
 const { initSocket } = require('./src/socket');
 
@@ -33,7 +33,7 @@ app.use('/api/auth', createAuthRouter(db));
 app.use('/api/boards', createBoardsRouter(db));
 app.use('/api/join', createJoinRouter(db));
 app.use('/api', createCardsRouter(db));
-app.use('/api', createVotesRouter(db));
+app.use('/api', createReactionsRouter(db));
 app.use('/api', createExportRouter(db));
 
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));

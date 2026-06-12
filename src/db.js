@@ -23,17 +23,20 @@ function initSchema(db) {
       id TEXT PRIMARY KEY,
       board_id TEXT NOT NULL REFERENCES boards(id),
       "column" TEXT NOT NULL CHECK("column" IN ('went_well', 'to_improve', 'stop_doing', 'action_items')),
-      text TEXT NOT NULL,
+      text TEXT,
       author TEXT NOT NULL,
       session_id TEXT NOT NULL,
       assignee TEXT,
+      gif_url TEXT,
+      avatar TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
-    CREATE TABLE IF NOT EXISTS votes (
+    CREATE TABLE IF NOT EXISTS reactions (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       card_id TEXT NOT NULL REFERENCES cards(id) ON DELETE CASCADE,
       session_id TEXT NOT NULL,
+      type TEXT NOT NULL,
       UNIQUE(card_id, session_id)
     );
 
