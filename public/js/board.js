@@ -102,7 +102,9 @@ function renderCard(card) {
   div.className = 'card-item';
   div.id = `card-${card.id}`;
 
-  const isOwn = card.session_id === sessionId || card.session_id === `admin-${sessionId}`;
+  const isOwn = card.session_id === sessionId
+    || card.session_id === `admin-${sessionId}`
+    || (isAdmin && card.session_id.startsWith('admin-'));
 
   // Assignee
   if (card.assignee && card.column === 'action_items') {
