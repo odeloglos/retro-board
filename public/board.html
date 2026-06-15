@@ -85,6 +85,8 @@
     .lock-toggle input { width: 16px; height: 16px; }
     .btn-export { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; padding: 5px 14px; cursor: pointer; font-size: 13px; font-family: 'Nunito', sans-serif; font-weight: 600; }
     .btn-export:hover { background: rgba(255,255,255,0.3); }
+    .btn-back { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; padding: 5px 12px; cursor: pointer; font-size: 13px; font-family: 'Nunito', sans-serif; font-weight: 600; text-decoration: none; display: none; }
+    .btn-back:hover { background: rgba(255,255,255,0.3); }
 
     .locked-banner { background: #fef2f2; color: #991b1b; text-align: center; padding: 8px; font-size: 14px; font-weight: 600; }
 
@@ -113,6 +115,7 @@
 </head>
 <body>
   <div class="board-header">
+    <a href="/dashboard.html" class="btn-back" id="btn-back">&larr; Dashboard</a>
     <span class="board-title" id="board-title">Loading...</span>
     <div class="timer-area">
       <span class="timer-display" id="timer-display"></span>

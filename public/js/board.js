@@ -50,6 +50,7 @@ async function init() {
   document.title = `Retro Board — ${boardData.title}`;
 
   if (isAdmin) {
+    document.getElementById('btn-back').style.display = 'inline-block';
     document.getElementById('lock-toggle').style.display = 'flex';
     const lockCheckbox = document.getElementById('lock-checkbox');
     lockCheckbox.checked = !!boardData.is_locked;
